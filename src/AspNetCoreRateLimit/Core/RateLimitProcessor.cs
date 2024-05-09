@@ -112,8 +112,8 @@ namespace AspNetCoreRateLimit
                     // add limit in list only if it's not already added
                     foreach (var limit in verbLimits)
                     {
-                        if (!limits.Contains(limit))
-                            limits.Add(limit);
+                        if (!matchingGeneralLimits.Contains(limit))
+                            matchingGeneralLimits.Add(limit);
                     }
                 }
                 else
