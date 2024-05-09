@@ -68,6 +68,11 @@ namespace AspNetCoreRateLimit
         public bool EnableRegexRuleMatching { get; set; }
 
         /// <summary>
+        /// Enables endpoint rule to override global rule.
+        /// </summary>
+        public bool EnableOverrideGlobalRule { get; set; }
+
+        /// <summary>
         /// Gets or sets behavior after the request is blocked
         /// </summary>
         public Func<HttpContext, ClientRequestIdentity, RateLimitCounter, RateLimitRule, Task> RequestBlockedBehaviorAsync { get; set; }
