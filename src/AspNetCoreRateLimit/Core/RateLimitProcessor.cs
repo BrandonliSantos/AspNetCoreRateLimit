@@ -82,13 +82,6 @@ namespace AspNetCoreRateLimit
 
                     // search for rules with endpoints like "matching_verb:/matching_path"
                     var verbLimits = rules.Where(r => $"{identity.HttpVerb}:{identity.Path}".IsUrlMatch(r.Endpoint, _options.EnableRegexRuleMatching));
-
-                    // add limit in list only if it's not already added
-                    foreach (var limit in verbLimits)
-                    {
-                        if(!limits.Contains(limit))
-                            limits.Add(limit);
-                    }
                 }
                 else
                 {
@@ -115,6 +108,13 @@ namespace AspNetCoreRateLimit
                     // search for rules with endpoints like "matching_verb:/matching_path" in general rules
                     var verbLimits = _options.GeneralRules.Where(r => $"{identity.HttpVerb}:{identity.Path}".IsUrlMatch(r.Endpoint, _options.EnableRegexRuleMatching));
                     matchingGeneralLimits.AddRange(verbLimits);
+
+                    // add limit in list only if it's not already added
+                    foreach (var limit in verbLimits)
+                    {
+                        if (!limits.Contains(limit))
+                            limits.Add(limit);
+                    }
                 }
                 else
                 {
