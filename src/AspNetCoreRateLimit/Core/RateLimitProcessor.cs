@@ -121,7 +121,7 @@ namespace AspNetCoreRateLimit
                 var generalLimits = matchingGeneralLimits
                     .GroupBy(l => l.Period)
                     .Select(l => l.OrderBy(x => x.Limit).ThenBy(x => x.Endpoint))
-                    .Select(l => _options.EnableOverrideGlobalRule 
+                    .Select(l => _options.EnableOverrideGlobalRule && l.Count() > 1
                                  ? l.First(x => !x.Endpoint.Equals("*") && !x.Endpoint.Equals(".+"))
                                  : l.First())
                     .ToList();
