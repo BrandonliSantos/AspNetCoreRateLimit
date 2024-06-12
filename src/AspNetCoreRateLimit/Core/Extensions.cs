@@ -40,7 +40,7 @@ namespace AspNetCoreRateLimit
 
         public static string RetryAfterFrom(this DateTime timestamp, RateLimitRule rule)
         {
-            var diff = timestamp + rule.PeriodTimespan.Value - DateTime.UtcNow;
+            var diff = timestamp + rule.BlockPeriodTimespan.Value - DateTime.UtcNow;
             var seconds = Math.Max(diff.TotalSeconds, 1);
 
             return $"{seconds:F0}";

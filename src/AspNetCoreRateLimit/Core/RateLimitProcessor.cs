@@ -49,12 +49,12 @@ namespace AspNetCoreRateLimit
 
             if (counter.HasValue)
             {
-                reset = counter.Value.Timestamp + (rule.PeriodTimespan ?? rule.Period.ToTimeSpan());
+                reset = counter.Value.Timestamp + (rule.BlockPeriodTimespan ?? rule.Period.ToTimeSpan());
                 remaining = rule.Limit - counter.Value.Count;
             }
             else
             {
-                reset = DateTime.UtcNow + (rule.PeriodTimespan ?? rule.Period.ToTimeSpan());
+                reset = DateTime.UtcNow + (rule.BlockPeriodTimespan ?? rule.Period.ToTimeSpan());
                 remaining = rule.Limit;
             }
 

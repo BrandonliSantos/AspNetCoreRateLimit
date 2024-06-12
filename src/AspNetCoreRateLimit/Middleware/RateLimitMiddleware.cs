@@ -59,7 +59,7 @@ namespace AspNetCoreRateLimit
                 if (rule.Limit > 0)
                 {
                     // check if key expired
-                    if (rateLimitCounter.Timestamp + rule.PeriodTimespan.Value < DateTime.UtcNow)
+                    if (rateLimitCounter.Timestamp + rule.BlockPeriodTimespan.Value < DateTime.UtcNow)
                     {
                         continue;
                     }

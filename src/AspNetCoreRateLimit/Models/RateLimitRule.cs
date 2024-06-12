@@ -18,6 +18,19 @@ namespace AspNetCoreRateLimit
         /// Rate limit period as in 1s, 1m, 1h
         /// </summary>
         public string Period { get; set; }
+        
+        public string BlockPeriod { get; set; }
+        
+        private TimeSpan? _blockPeriodTimeSpan;
+        
+        public TimeSpan? BlockPeriodTimespan 
+        {
+            get => _blockPeriodTimeSpan ??= string.IsNullOrEmpty(BlockPeriod) 
+                ? Period.ToTimeSpan() 
+                : BlockPeriod.ToTimeSpan();
+
+            set => _blockPeriodTimeSpan = value;
+        }
 
         public TimeSpan? PeriodTimespan { get; set; }
 

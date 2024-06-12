@@ -44,7 +44,7 @@ namespace AspNetCoreRateLimit
                 if (entry.HasValue)
                 {
                     // entry has not expired
-                    if (entry.Value.Timestamp + rule.PeriodTimespan.Value >= DateTime.UtcNow)
+                    if (entry.Value.Timestamp + rule.BlockPeriodTimespan.Value >= DateTime.UtcNow)
                     {
                         // increment request count
                         var totalCount = entry.Value.Count + increment;
@@ -59,7 +59,7 @@ namespace AspNetCoreRateLimit
                 }
 
                 // stores: id (string) - timestamp (datetime) - total_requests (long)
-                await _counterStore.SetAsync(counterId, counter, rule.PeriodTimespan.Value, cancellationToken).ConfigureAwait(false);
+                await _counterStore.SetAsync(counterId, counter, rule.BlockPeriodTimespan.Value, cancellationToken).ConfigureAwait(false);
             }
 
             return counter;

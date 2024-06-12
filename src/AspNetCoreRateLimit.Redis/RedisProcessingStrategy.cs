@@ -26,7 +26,7 @@ namespace AspNetCoreRateLimit.Redis
         public override async Task<RateLimitCounter> ProcessRequestAsync(ClientRequestIdentity requestIdentity, RateLimitRule rule, ICounterKeyBuilder counterKeyBuilder, RateLimitOptions rateLimitOptions, CancellationToken cancellationToken = default)
         {
             var counterId = BuildCounterKey(requestIdentity, rule, counterKeyBuilder, rateLimitOptions);
-            return await IncrementAsync(counterId, rule.PeriodTimespan.Value, _config.RateIncrementer);
+            return await IncrementAsync(counterId, rule.BlockPeriodTimespan.Value, _config.RateIncrementer);
         }
 
         public async Task<RateLimitCounter> IncrementAsync(string counterId, TimeSpan interval, Func<double> RateIncrementer = null)
