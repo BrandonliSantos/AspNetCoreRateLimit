@@ -22,11 +22,11 @@ namespace AspNetCoreRateLimit.Demo
         {
             // configure ip rate limiting middleware
             services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
-            services.Configure<IpRateLimitPolicies>(Configuration.GetSection("IpRateLimitPolicies"));
+            //services.Configure<IpRateLimitPolicies>(Configuration.GetSection("IpRateLimitPolicies"));
 
             // configure client rate limiting middleware
-            services.Configure<ClientRateLimitOptions>(Configuration.GetSection("ClientRateLimiting"));
-            services.Configure<ClientRateLimitPolicies>(Configuration.GetSection("ClientRateLimitPolicies"));
+            //services.Configure<ClientRateLimitOptions>(Configuration.GetSection("ClientRateLimiting"));
+            //services.Configure<ClientRateLimitPolicies>(Configuration.GetSection("ClientRateLimitPolicies"));
 
             // register stores
             services.AddInMemoryRateLimiting();
