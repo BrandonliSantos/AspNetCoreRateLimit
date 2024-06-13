@@ -56,9 +56,11 @@ namespace AspNetCoreRateLimit
                             Count = totalCount,
                             IsBlocked = totalCount > rule.Limit
                         };
+                        
+                        if(counter.IsBlocked) counter.BlockedAt = DateTime.UtcNow;
                     }
                     else
-                        counter = counter with { Timestamp = entry.Value.Timestamp, IsBlocked = entry.Value.IsBlocked};
+                        counter = counter with { IsBlocked = entry.Value.IsBlocked, BlockedAt = entry.Value.BlockedAt};
                         
                 }
 

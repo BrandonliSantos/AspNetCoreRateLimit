@@ -12,5 +12,13 @@ namespace AspNetCoreRateLimit
         public double Count { get; set; }
 
         public bool IsBlocked { get; set; }
+
+        private DateTime? _blockedAt { get; set; }
+        
+        public DateTime BlockedAt
+        {
+            get => _blockedAt ??= Timestamp;
+            set => _blockedAt = value;
+        }
     }
 }

@@ -68,7 +68,7 @@ namespace AspNetCoreRateLimit
                     if (rateLimitCounter.IsBlocked || rateLimitCounter.Count > rule.Limit)
                     {
                         //compute retry after value
-                        var retryAfter = rateLimitCounter.Timestamp.RetryAfterFrom(rule);
+                        var retryAfter = rateLimitCounter.BlockedAt.RetryAfterFrom(rule);
 
                         // log blocked request
                         LogBlockedRequest(context, identity, rateLimitCounter, rule);

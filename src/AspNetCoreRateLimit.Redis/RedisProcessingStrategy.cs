@@ -51,7 +51,7 @@ namespace AspNetCoreRateLimit.Redis
             if (block.isBlocked)
             {
                 limitCounter.IsBlocked = true;
-                limitCounter.Timestamp = block.blockedAt;
+                limitCounter.BlockedAt = block.blockedAt;
             }
             
             return limitCounter;
