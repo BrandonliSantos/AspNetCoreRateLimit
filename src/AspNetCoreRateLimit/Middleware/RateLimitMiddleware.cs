@@ -65,7 +65,7 @@ namespace AspNetCoreRateLimit
                     }
 
                     // check if limit is reached
-                    if (rateLimitCounter.Count > rule.Limit)
+                    if (rateLimitCounter.IsBlocked || rateLimitCounter.Count > rule.Limit)
                     {
                         //compute retry after value
                         var retryAfter = rateLimitCounter.Timestamp.RetryAfterFrom(rule);

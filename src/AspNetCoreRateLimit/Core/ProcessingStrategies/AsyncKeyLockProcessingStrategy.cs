@@ -44,7 +44,7 @@ namespace AspNetCoreRateLimit
                 if (entry.HasValue)
                 {
                     // entry has not expired
-                    if (entry.Value.Timestamp + rule.BlockPeriodTimespan.Value >= DateTime.UtcNow)
+                    if (entry.Value.Timestamp + rule.PeriodTimespan.Value >= DateTime.UtcNow)
                     {
                         // increment request count
                         var totalCount = entry.Value.Count + increment;
@@ -53,9 +53,13 @@ namespace AspNetCoreRateLimit
                         counter = new RateLimitCounter
                         {
                             Timestamp = entry.Value.Timestamp,
-                            Count = totalCount
+                            Count = totalCount,
+                            IsBlocked = totalCount > rule.Limit
                         };
                     }
+                    else
+                        counter = counter with { Timestamp = entry.Value.Timestamp, IsBlocked = entry.Value.IsBlocked};
+                        
                 }
 
                 // stores: id (string) - timestamp (datetime) - total_requests (long)

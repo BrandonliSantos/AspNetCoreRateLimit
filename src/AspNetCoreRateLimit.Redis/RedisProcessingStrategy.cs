@@ -26,22 +26,66 @@ namespace AspNetCoreRateLimit.Redis
         public override async Task<RateLimitCounter> ProcessRequestAsync(ClientRequestIdentity requestIdentity, RateLimitRule rule, ICounterKeyBuilder counterKeyBuilder, RateLimitOptions rateLimitOptions, CancellationToken cancellationToken = default)
         {
             var counterId = BuildCounterKey(requestIdentity, rule, counterKeyBuilder, rateLimitOptions);
-            return await IncrementAsync(counterId, rule.BlockPeriodTimespan.Value, _config.RateIncrementer);
+            var limitCounter = await IncrementAsync(counterId, rule.PeriodTimespan.Value, rule, _config.RateIncrementer);
+            
+            return limitCounter;
         }
 
-        public async Task<RateLimitCounter> IncrementAsync(string counterId, TimeSpan interval, Func<double> RateIncrementer = null)
+        private async Task<RateLimitCounter> IncrementAsync(string counterId, TimeSpan interval, RateLimitRule rule, Func<double> RateIncrementer = null)
         {
             var now = DateTime.UtcNow;
             var numberOfIntervals = now.Ticks / interval.Ticks;
             var intervalStart = new DateTime(numberOfIntervals * interval.Ticks, DateTimeKind.Utc);
 
             _logger.LogDebug("Calling Lua script. {counterId}, {timeout}, {delta}", counterId, interval.TotalSeconds, 1D);
-            var count = await _connectionMultiplexer.GetDatabase().ScriptEvaluateAsync(_atomicIncrement, new { key = new RedisKey(counterId), timeout = interval.TotalSeconds, delta = RateIncrementer?.Invoke() ?? 1D });
-            return new RateLimitCounter
+            var db = _connectionMultiplexer.GetDatabase();
+            var count = await db.ScriptEvaluateAsync(_atomicIncrement, new { key = new RedisKey(counterId), timeout = interval.TotalSeconds, delta = RateIncrementer?.Invoke() ?? 1D });
+            var block = await CheckIfBlockedAsync(counterId, (double)count, rule, intervalStart);
+            
+            var limitCounter = new RateLimitCounter
             {
                 Count = (double)count,
-                Timestamp = intervalStart
+                Timestamp = intervalStart,
             };
+            
+            if (block.isBlocked)
+            {
+                limitCounter.IsBlocked = true;
+                limitCounter.Timestamp = block.blockedAt;
+            }
+            
+            return limitCounter;
+        }
+        
+        private async Task<(bool isBlocked, DateTime blockedAt)> CheckIfBlockedAsync(string counterId, double count, RateLimitRule rule, DateTime intervalStart)
+        {
+            var db = _connectionMultiplexer.GetDatabase();
+            var key = new RedisKey($"IsBlocked-{counterId}");
+            var isBlockedRedis = await db.HashGetAsync(key, "IsBlocked");
+            var blockedAtRedis = await db.HashGetAsync(key, "BlockedAt");
+
+            if (isBlockedRedis.HasValue && blockedAtRedis.HasValue)
+            {
+                var isBlocked = (bool)isBlockedRedis;
+                var blockedAt = new DateTime((long)blockedAtRedis, DateTimeKind.Utc);
+                return (isBlocked, blockedAt);
+            }
+
+            if (intervalStart + rule.PeriodTimespan.Value >= DateTime.UtcNow)
+            {
+                var isBlocked = count > rule.Limit;
+                var now = DateTime.UtcNow;
+
+                if (isBlocked)
+                {
+                    await db.HashSetAsync(key, new[] { new HashEntry("IsBlocked", true), new HashEntry("BlockedAt", now.Ticks) });
+                    await db.KeyExpireAsync(key, rule.BlockPeriodTimespan.Value);
+                }
+                
+                return (isBlocked, now);
+            }
+
+            return (false, DateTime.MinValue);
         }
     }
 }

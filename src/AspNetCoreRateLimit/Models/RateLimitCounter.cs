@@ -10,5 +10,7 @@ namespace AspNetCoreRateLimit
         public DateTime Timestamp { get; set; }
 
         public double Count { get; set; }
+
+        public bool IsBlocked { get; set; }
     }
 }
